@@ -1,5 +1,5 @@
 """
-Quiz TGE APP 2025 - Versão Refatorada
+Quiz TGE APP 2025 - Versão Refatorada com Janelas Melhoradas
 Sistema de quiz com interface gráfica usando Tkinter e SQLite
 """
 
@@ -119,6 +119,183 @@ class QuestionManager:
         return selected_questions
 
 
+# --------------------- Janela Personalizada de Resultado ---------------------
+class CustomResultDialog:
+    """Janela personalizada para mostrar resultado de cada questão"""
+    
+    def __init__(self, parent, is_correct: bool, correct_answer: str = None, user_answer: str = None):
+        self.parent = parent
+        self.is_correct = is_correct
+        self.correct_answer = correct_answer
+        self.user_answer = user_answer
+        self.result = None
+        
+        self._create_dialog()
+    
+    def _create_dialog(self):
+        """Cria a janela de diálogo personalizada"""
+        # Criar janela
+        self.dialog = tk.Toplevel(self.parent)
+        self.dialog.title("Resultado da Questão")
+        self.dialog.configure(bg=Config.BACKGROUND_COLOR)
+        
+        # Configurar tamanho e posição
+        dialog_width, dialog_height = 500, 350
+        parent_x = self.parent.winfo_rootx()
+        parent_y = self.parent.winfo_rooty()
+        parent_width = self.parent.winfo_width()
+        parent_height = self.parent.winfo_height()
+        
+        pos_x = parent_x + (parent_width - dialog_width) // 2
+        pos_y = parent_y + (parent_height - dialog_height) // 2
+        
+        self.dialog.geometry(f"{dialog_width}x{dialog_height}+{pos_x}+{pos_y}")
+        self.dialog.resizable(False, False)
+        
+        # Tornar modal
+        self.dialog.transient(self.parent)
+        self.dialog.grab_set()
+        
+        # Configurar cor de fundo baseada no resultado
+        bg_color = Config.SUCCESS_COLOR if self.is_correct else Config.ERROR_COLOR
+        
+        # Frame principal com borda colorida
+        main_frame = tk.Frame(
+            self.dialog,
+            bg=bg_color,
+            padx=3,
+            pady=3
+        )
+        main_frame.pack(fill='both', expand=True, padx=10, pady=10)
+        
+        # Frame interno
+        inner_frame = tk.Frame(
+            main_frame,
+            bg=Config.BACKGROUND_COLOR,
+            padx=20,
+            pady=20
+        )
+        inner_frame.pack(fill='both', expand=True)
+        
+        # Ícone e título
+        self._create_header(inner_frame)
+        
+        # Mensagem principal
+        self._create_message(inner_frame)
+        
+        # Botão de continuar
+        self._create_button(inner_frame)
+        
+        # Configurar eventos
+        self.dialog.bind('<Return>', lambda e: self._continue())
+        self.dialog.bind('<Escape>', lambda e: self._continue())
+        self.dialog.focus_set()
+    
+    def _create_header(self, parent):
+        """Cria o cabeçalho com ícone e título"""
+        header_frame = tk.Frame(parent, bg=Config.BACKGROUND_COLOR)
+        header_frame.pack(fill='x', pady=(0, 20))
+        
+        # Ícone grande usando caracteres Unicode
+        if self.is_correct:
+            icon = "✅"
+            title = "CORRETO!"
+            color = Config.SUCCESS_COLOR
+        else:
+            icon = "❌"
+            title = "INCORRETO!"
+            color = Config.ERROR_COLOR
+        
+        # Ícone
+        icon_label = tk.Label(
+            header_frame,
+            text=icon,
+            font=("Arial", 48),
+            bg=Config.BACKGROUND_COLOR,
+            fg=color
+        )
+        icon_label.pack(pady=(0, 10))
+        
+        # Título
+        title_label = tk.Label(
+            header_frame,
+            text=title,
+            font=("Arial", 18, "bold"),
+            bg=Config.BACKGROUND_COLOR,
+            fg=color
+        )
+        title_label.pack()
+    
+    def _create_message(self, parent):
+        """Cria a mensagem de resultado"""
+        message_frame = tk.Frame(parent, bg=Config.BACKGROUND_COLOR)
+        message_frame.pack(fill='x', pady=(0, 30))
+        
+        if self.is_correct:
+            message = "Parabéns! Você acertou esta questão!"
+            message_color = Config.SUCCESS_COLOR
+        else:
+            message = f"Resposta incorreta.\n\nSua resposta: {self.user_answer.upper()}\nResposta correta: {self.correct_answer.upper()}"
+            message_color = Config.ERROR_COLOR
+        
+        message_label = tk.Label(
+            message_frame,
+            text=message,
+            font=("Arial", 12),
+            bg=Config.BACKGROUND_COLOR,
+            fg=Config.TEXT_COLOR,
+            justify="center"
+        )
+        message_label.pack()
+        
+        # Linha decorativa
+        line_frame = tk.Frame(
+            message_frame,
+            height=2,
+            bg=message_color
+        )
+        line_frame.pack(fill='x', pady=(15, 0))
+    
+    def _create_button(self, parent):
+        """Cria o botão de continuar"""
+        button_frame = tk.Frame(parent, bg=Config.BACKGROUND_COLOR)
+        button_frame.pack(fill='x')
+        
+        # Texto do botão baseado no resultado
+        button_text = "Continuar" if self.is_correct else "OK"
+        
+        continue_button = tk.Button(
+            button_frame,
+            text=button_text,
+            font=("Arial", 12, "bold"),
+            bg=Config.SUCCESS_COLOR if self.is_correct else Config.ERROR_COLOR,
+            fg=Config.TEXT_COLOR,
+            width=20,
+            height=2,
+            command=self._continue,
+            cursor="hand2"
+        )
+        continue_button.pack(pady=10)
+        
+        # Efeito hover
+        def on_enter(e):
+            continue_button.config(bg="#45a049" if self.is_correct else "#da190b")
+        
+        def on_leave(e):
+            continue_button.config(bg=Config.SUCCESS_COLOR if self.is_correct else Config.ERROR_COLOR)
+        
+        continue_button.bind("<Enter>", on_enter)
+        continue_button.bind("<Leave>", on_leave)
+    
+    def _continue(self):
+        """Fecha a janela e continua o quiz"""
+        self.dialog.destroy()
+    
+    def show(self):
+        """Mostra a janela e aguarda o usuário"""
+        self.dialog.wait_window()
+
+
 # --------------------- Utilitários de Interface ---------------------
 class WindowUtils:
     """Utilitários para configuração de janelas"""
@@ -158,7 +335,7 @@ class PerformanceEvaluator:
             message = "👍 Bom trabalho! Continue estudando!"
         else:
             level = PerformanceLevel.NEEDS_IMPROVEMENT
-            message = "📚 Acontece novinho(a)!Continue estudando para melhorar!"
+            message = "📚 Continue estudando para melhorar!"
         
         return percentage, level, message
 
@@ -346,14 +523,19 @@ class QuizApplication:
         if not self.is_quiz_active:
             return
         
-        if answer == self.current_correct_answer:
+        is_correct = answer == self.current_correct_answer
+        
+        if is_correct:
             self.correct_answers += 1
-            messagebox.showinfo("Resultado", "✅ Correto!")
-        else:
-            messagebox.showerror(
-                "Resultado", 
-                f"❌ Errado. Resposta correta: {self.current_correct_answer}"
-            )
+        
+        # Mostrar janela personalizada de resultado
+        result_dialog = CustomResultDialog(
+            self.root,
+            is_correct,
+            self.current_correct_answer,
+            answer
+        )
+        result_dialog.show()
         
         self._next_question()
     
