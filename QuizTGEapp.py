@@ -140,7 +140,7 @@ class CustomResultDialog:
         self.dialog.configure(bg=Config.BACKGROUND_COLOR)
         
         # Configurar tamanho e posição
-        dialog_width, dialog_height = 500, 350
+        dialog_width, dialog_height = 500, 400
         parent_x = self.parent.winfo_rootx()
         parent_y = self.parent.winfo_rooty()
         parent_width = self.parent.winfo_width()
@@ -173,7 +173,7 @@ class CustomResultDialog:
             main_frame,
             bg=Config.BACKGROUND_COLOR,
             padx=20,
-            pady=20
+            pady=15
         )
         inner_frame.pack(fill='both', expand=True)
         
@@ -194,7 +194,7 @@ class CustomResultDialog:
     def _create_header(self, parent):
         """Cria o cabeçalho com ícone e título"""
         header_frame = tk.Frame(parent, bg=Config.BACKGROUND_COLOR)
-        header_frame.pack(fill='x', pady=(0, 20))
+        header_frame.pack(fill='x', pady=(0, 15))
         
         # Ícone grande usando caracteres Unicode
         if self.is_correct:
@@ -210,17 +210,17 @@ class CustomResultDialog:
         icon_label = tk.Label(
             header_frame,
             text=icon,
-            font=("Arial", 48),
+            font=("Arial", 36),
             bg=Config.BACKGROUND_COLOR,
             fg=color
         )
-        icon_label.pack(pady=(0, 10))
+        icon_label.pack(pady=(0, 5))
         
         # Título
         title_label = tk.Label(
             header_frame,
             text=title,
-            font=("Arial", 18, "bold"),
+            font=("Arial", 16, "bold"),
             bg=Config.BACKGROUND_COLOR,
             fg=color
         )
@@ -229,7 +229,7 @@ class CustomResultDialog:
     def _create_message(self, parent):
         """Cria a mensagem de resultado"""
         message_frame = tk.Frame(parent, bg=Config.BACKGROUND_COLOR)
-        message_frame.pack(fill='x', pady=(0, 30))
+        message_frame.pack(fill='x', pady=(0, 15))
         
         if self.is_correct:
             message = "Parabéns! Você acertou esta questão!"
@@ -241,7 +241,7 @@ class CustomResultDialog:
         message_label = tk.Label(
             message_frame,
             text=message,
-            font=("Arial", 12),
+            font=("Arial", 11),
             bg=Config.BACKGROUND_COLOR,
             fg=Config.TEXT_COLOR,
             justify="center"
@@ -254,15 +254,15 @@ class CustomResultDialog:
             height=2,
             bg=message_color
         )
-        line_frame.pack(fill='x', pady=(15, 0))
+        line_frame.pack(fill='x', pady=(10, 0))
     
     def _create_button(self, parent):
         """Cria o botão de continuar"""
         button_frame = tk.Frame(parent, bg=Config.BACKGROUND_COLOR)
         button_frame.pack(fill='x')
         
-        # Texto do botão baseado no resultado
-        button_text = "Continuar" if self.is_correct else "OK"
+        # Usar "Continuar" para ambos os casos
+        button_text = "Continuar"
         
         continue_button = tk.Button(
             button_frame,
