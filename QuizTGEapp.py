@@ -158,7 +158,7 @@ class PerformanceEvaluator:
             message = "👍 Bom trabalho! Continue estudando!"
         else:
             level = PerformanceLevel.NEEDS_IMPROVEMENT
-            message = "📚 Continue estudando para melhorar!"
+            message = "📚 Acontece novinho(a)!Continue estudando para melhorar!"
         
         return percentage, level, message
 
